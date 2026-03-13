@@ -1,0 +1,4 @@
+fastapi
+uvicorn[standard]
+tensorflow==2.15.1
+azure-monitor-opentelemetry
