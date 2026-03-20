@@ -10,16 +10,6 @@ import tensorflow as tf
 from tensorflow.keras.preprocessing.sequence import pad_sequences
 from tensorflow.keras.preprocessing.text import tokenizer_from_json
 
-CONN_STR = os.getenv("APPLICATIONINSIGHTS_CONNECTION_STRING")
-
-if CONN_STR:
-    from azure.monitor.opentelemetry import configure_azure_monitor
-
-    configure_azure_monitor(
-        connection_string=CONN_STR,
-        logger_name="sentiment-api",
-    )
-
 logger = logging.getLogger("sentiment-api")
 logger.setLevel(logging.INFO)
 logging.basicConfig(level=logging.INFO)
@@ -74,15 +64,6 @@ class PredictOut(BaseModel):
     label_name: str
     proba: float
 
-
-class FeedbackIn(BaseModel):
-    text: str = Field(..., min_length=1)
-    predicted_label: int
-    predicted_label_name: Optional[str] = None
-    proba: float
-    is_satisfied: bool
-    comment: Optional[str] = None
-
 def predict_one(text: str):
     model = get_model()
     seq = TOKENIZER.texts_to_sequences([text])
@@ -127,40 +108,3 @@ def predict(payload: PredictIn):
     )
 
     return PredictOut(label=label, label_name=label_name, proba=proba)
-
-
-@app.post("/feedback")
-def feedback(payload: FeedbackIn):
-    if not payload.is_satisfied:
-        predicted_label_name = payload.predicted_label_name
-        if predicted_label_name is None:
-            predicted_label_name = LABEL_MAP.get(
-                str(payload.predicted_label),
-                str(payload.predicted_label),
-            )
-
-        logger.warning(
-            "bad_prediction_feedback",
-            extra={
-                "event_name": "bad_prediction_feedback",
-                "predicted_label": payload.predicted_label,
-                "predicted_label_name": predicted_label_name,
-                "proba": payload.proba,
-                "text_len": len(payload.text),
-                "comment": payload.comment or "",
-            },
-        )
-    else:
-        logger.info(
-            "good_prediction_feedback",
-            extra={
-                "event_name": "good_prediction_feedback",
-                "predicted_label": payload.predicted_label,
-                "predicted_label_name": payload.predicted_label_name
-                or LABEL_MAP.get(str(payload.predicted_label), str(payload.predicted_label)),
-                "proba": payload.proba,
-                "text_len": len(payload.text),
-            },
-        )
-
-    return {"received": True}
