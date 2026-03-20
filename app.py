@@ -27,7 +27,7 @@ logging.basicConfig(level=logging.INFO)
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 ART_DIR = os.path.join(BASE_DIR, "artefacts")
 
-MODEL_PATH = os.path.join(ART_DIR, "model.keras")
+MODEL_PATH = os.path.join(ART_DIR, "mod.keras")
 TOKENIZER_PATH = os.path.join(ART_DIR, "tokenizer.json")
 CONFIG_PATH = os.path.join(ART_DIR, "config.json")
 
