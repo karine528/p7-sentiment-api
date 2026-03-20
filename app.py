@@ -21,6 +21,10 @@ MODEL_PATH = os.path.join(ART_DIR, "mod.keras")
 TOKENIZER_PATH = os.path.join(ART_DIR, "tokenizer.json")
 CONFIG_PATH = os.path.join(ART_DIR, "config.json")
 
+print("BASE_DIR:", BASE_DIR)
+print("MODEL_PATH:", MODEL_PATH)
+print("Files:", os.listdir(ART_DIR) if os.path.exists(ART_DIR) else "No dir")
+
 if not os.path.exists(MODEL_PATH):
     raise FileNotFoundError(f"Missing {MODEL_PATH}")
 
