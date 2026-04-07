@@ -52,7 +52,7 @@ def get_model():
     global MODEL
     if MODEL is None:
         logger.info("loading_model")
-        MODEL = tf.keras.models.load_model(MODEL_PATH, compile=False)
+        MODEL = tf.keras.models.load_model(MODEL_PATH)
         logger.info("model_loaded")
     return MODEL
 
