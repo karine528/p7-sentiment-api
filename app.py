@@ -17,7 +17,7 @@ logging.basicConfig(level=logging.INFO)
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 ART_DIR = os.path.join(BASE_DIR, "artifacts")
 
-MODEL_PATH = os.path.join(ART_DIR, "model.keras")
+MODEL_PATH = os.path.join(ART_DIR, "model.h5")
 TOKENIZER_PATH = os.path.join(ART_DIR, "tokenizer.json")
 CONFIG_PATH = os.path.join(ART_DIR, "config.json")
 
@@ -52,7 +52,7 @@ def get_model():
     global MODEL
     if MODEL is None:
         logger.info("loading_model")
-        MODEL = tf.keras.models.load_model(MODEL_PATH)
+        MODEL = tf.keras.models.load_model(MODEL_PATH, compile=False)
         logger.info("model_loaded")
     return MODEL
 
