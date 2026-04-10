@@ -17,7 +17,7 @@ logging.basicConfig(level=logging.INFO)
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 ART_DIR = os.path.join(BASE_DIR, "artifacts")
 
-MODEL_PATH = os.path.join(ART_DIR, "model.h5")
+MODEL_PATH = os.path.join(ART_DIR, "model.keras")
 TOKENIZER_PATH = os.path.join(ART_DIR, "tokenizer.json")
 CONFIG_PATH = os.path.join(ART_DIR, "config.json")
 
@@ -44,7 +44,6 @@ LABEL_MAP = CFG.get("label_map", {"0": "negative", "1": "positive"})
 with open(TOKENIZER_PATH, "r", encoding="utf-8") as f:
     TOKENIZER = tokenizer_from_json(f.read())
 
-
 MODEL = None
 
 
@@ -59,6 +58,7 @@ def get_model():
 
 app = FastAPI(title="P7 Sentiment API", version="1.0")
 
+
 class PredictIn(BaseModel):
     text: str = Field(..., min_length=1)
 
@@ -68,6 +68,15 @@ class PredictOut(BaseModel):
     label_name: str
     proba: float
 
+
+class FeedbackIn(BaseModel):
+    text: str = Field(..., min_length=1)
+    predicted_label: int
+    predicted_label_name: str
+    proba: float
+    is_satisfied: bool
+
+
 def predict_one(text: str):
     model = get_model()
     seq = TOKENIZER.texts_to_sequences([text])
@@ -76,6 +85,7 @@ def predict_one(text: str):
     label = int(proba >= THRESHOLD)
     label_name = LABEL_MAP.get(str(label), str(label))
     return label, label_name, proba
+
 
 @app.get("/")
 def root():
@@ -112,3 +122,23 @@ def predict(payload: PredictIn):
     )
 
     return PredictOut(label=label, label_name=label_name, proba=proba)
+
+
+@app.post("/feedback")
+def feedback(payload: FeedbackIn):
+    logger.info(
+        "feedback_received",
+        extra={
+            "event_name": "feedback_received",
+            "text": payload.text,
+            "predicted_label": payload.predicted_label,
+            "predicted_label_name": payload.predicted_label_name,
+            "proba": payload.proba,
+            "is_satisfied": payload.is_satisfied,
+        },
+    )
+
+    return {
+        "message": "feedback reçu",
+        "is_satisfied": payload.is_satisfied
+    }
