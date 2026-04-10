@@ -127,15 +127,11 @@ def predict(payload: PredictIn):
 @app.post("/feedback")
 def feedback(payload: FeedbackIn):
     logger.info(
-        "feedback_received",
-        extra={
-            "event_name": "feedback_received",
-            "text": payload.text,
-            "predicted_label": payload.predicted_label,
-            "predicted_label_name": payload.predicted_label_name,
-            "proba": payload.proba,
-            "is_satisfied": payload.is_satisfied,
-        },
+        f"feedback_received | text={payload.text} | "
+        f"predicted_label={payload.predicted_label} | "
+        f"predicted_label_name={payload.predicted_label_name} | "
+        f"proba={payload.proba} | "
+        f"is_satisfied={payload.is_satisfied}"
     )
 
     return {
